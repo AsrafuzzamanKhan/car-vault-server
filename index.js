@@ -1,9 +1,9 @@
-const express = require('express');
-const { MongoClient } = require('mongodb');
+const express = require("express");
+const { MongoClient } = require("mongodb");
 const app = express();
-const cors = require('cors');
-require('dotenv').config();
-const ObjectId = require('mongodb').ObjectId;
+const cors = require("cors");
+require("dotenv").config();
+const ObjectId = require("mongodb").ObjectId;
 
 const port = process.env.PORT || 5000;
 
@@ -19,34 +19,35 @@ console.log(uri);
 
 async function run() {
   try {
-    await client.connect();
-    const database = client.db('CarDB');
-    const carsCollection = database.collection('cars');
-    const reviewsCollection = database.collection('reviews');
-    const bookingsCollection = database.collection('bookings');
-    const usersCollection = database.collection('user');
+    // await client.connect();
+    client.connect();
+    const database = client.db("CarDB");
+    const carsCollection = database.collection("cars");
+    const reviewsCollection = database.collection("reviews");
+    const bookingsCollection = database.collection("bookings");
+    const usersCollection = database.collection("user");
 
     //  add a car
-    app.post('/addCar', async (req, res) => {
+    app.post("/addCar", async (req, res) => {
       const car = req.body;
       const result = await carsCollection.insertOne(car);
       res.json(result);
     });
 
-    app.get('/allCars', async (req, res) => {
+    app.get("/allCars", async (req, res) => {
       const cursor = carsCollection.find({});
       const result = await cursor.toArray();
       res.json(result);
     });
 
-    app.get('/homeCars', async (req, res) => {
+    app.get("/homeCars", async (req, res) => {
       const cursor = carsCollection.find({}).limit(6);
       const result = await cursor.toArray();
       res.json(result);
     });
 
     // get single car
-    app.get('/allCars/:id', async (req, res) => {
+    app.get("/allCars/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const car = await carsCollection.findOne(query);
@@ -56,39 +57,39 @@ async function run() {
 
     // delete car
 
-    app.delete('/allCars/:id', async (req, res) => {
+    app.delete("/allCars/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await carsCollection.deleteOne(query);
       res.json(result);
     });
 
-    app.post('/addReview', async (req, res) => {
+    app.post("/addReview", async (req, res) => {
       const review = req.body;
       const result = await reviewsCollection.insertOne(review);
       res.json(result);
     });
 
-    app.get('/reviews', async (req, res) => {
+    app.get("/reviews", async (req, res) => {
       const cursor = reviewsCollection.find({});
       const result = await cursor.toArray();
       res.json(result);
     });
-    app.delete('/reviews/:id', async (req, res) => {
+    app.delete("/reviews/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await reviewsCollection.deleteOne(query);
       res.json(result);
     });
 
-    app.get('/allOrders', async (req, res) => {
+    app.get("/allOrders", async (req, res) => {
       const cursor = bookingsCollection.find({});
       const result = await cursor.toArray();
       res.json(result);
     });
 
     // get personal booking
-    app.get('/bookingCar', async (req, res) => {
+    app.get("/bookingCar", async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
       const cursor = bookingsCollection.find(query);
@@ -97,12 +98,12 @@ async function run() {
     });
 
     // insert
-    app.post('/bookingCar', async (req, res) => {
+    app.post("/bookingCar", async (req, res) => {
       const cursor = req.body;
       const result = await bookingsCollection.insertOne(cursor);
       res.json(result);
     });
-    app.delete('/bookingCar/:id', async (req, res) => {
+    app.delete("/bookingCar/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await bookingsCollection.deleteOne(query);
@@ -110,24 +111,24 @@ async function run() {
     });
 
     // verify admin
-    app.get('/users/:email', async (req, res) => {
+    app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const user = await usersCollection.findOne(query);
       let isAdmin = false;
-      if (user?.role === 'admin') {
+      if (user?.role === "admin") {
         isAdmin = true;
       }
       res.json({ admin: isAdmin });
     });
 
     // add user
-    app.post('/users', async (req, res) => {
+    app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await usersCollection.insertOne(user);
       res.json(result);
     });
-    app.put('/users', async (req, res) => {
+    app.put("/users", async (req, res) => {
       const user = req.body;
       const filter = { email: user.email };
       const options = { upsert: true };
@@ -140,11 +141,11 @@ async function run() {
       res.json(result);
     });
 
-    app.put('/users/admin', async (req, res) => {
+    app.put("/users/admin", async (req, res) => {
       const user = req.body;
-      console.log('User: ', user);
+      console.log("User: ", user);
       const filter = { email: user.email };
-      const updateDoc = { $set: { role: 'admin' } };
+      const updateDoc = { $set: { role: "admin" } };
       const result = await usersCollection.updateOne(filter, updateDoc);
       res.json(result);
     });
@@ -167,8 +168,8 @@ async function run() {
 }
 run().catch(console.dir);
 
-app.get('/', (req, res) => {
-  res.send(' Car World-2023');
+app.get("/", (req, res) => {
+  res.send(" Car World-2023");
 });
 
 app.listen(port, () => {
